@@ -7,14 +7,23 @@ defmodule Example.Application do
 
   @impl true
   def start(_type, _args) do
+    pubsub = System.get_env("ELIXIRKIT_PUBSUB")
+
     children = [
       ExampleWeb.Telemetry,
       {DNSCluster, query: Application.get_env(:example, :dns_cluster_query) || :ignore},
       {Phoenix.PubSub, name: Example.PubSub},
+      {ElixirKit.PubSub, connect: pubsub || :ignore, on_exit: fn -> System.stop() end},
       # Start a worker by calling: Example.Worker.start_link(arg)
       # {Example.Worker, arg},
       # Start to serve requests, typically the last entry
-      ExampleWeb.Endpoint
+      ExampleWeb.Endpoint,
+      {Task,
+       fn ->
+         if pubsub do
+           ElixirKit.PubSub.broadcast("messages", "ready")
+         end
+       end}
     ]
 
     # See https://elixir.hexdocs.pm/Supervisor.html
