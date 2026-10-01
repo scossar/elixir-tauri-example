@@ -9,6 +9,7 @@ defmodule ExampleWeb.HomeLive do
   @impl true
   def render(assigns) do
     ~H"""
+    <.button navigate={~p"/scratch"}>To a regular route</.button>
     <div class="flex items-center justify-between m-4">
       <div class="flex items-center gap-2">
         <span>Count: <span class="font-mono">{@count}</span></span>
